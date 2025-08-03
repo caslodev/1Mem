@@ -1,66 +1,78 @@
-import { Button, Heading, Text } from "react-aria-components";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { WagmiProvider } from "wagmi";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { http, createConfig } from "wagmi";
+import { baseSepolia, polygonAmoy } from "wagmi/chains";
+import {
+  metaMaskWallet,
+  walletConnectWallet,
+} from "@rainbow-me/rainbowkit/wallets";
+import { connectorsForWallets } from "@rainbow-me/rainbowkit";
+import { SwapInterface } from "./components/SwapInterface";
+
+// Configure chains & providers
+const config = createConfig({
+  chains: [baseSepolia, polygonAmoy],
+  connectors: connectorsForWallets(
+    [
+      {
+        groupName: "Recommended",
+        wallets: [metaMaskWallet, walletConnectWallet],
+      },
+    ],
+    {
+      appName: "1inch",
+      projectId: "YOUR_WALLET_CONNECT_PROJECT_ID",
+    }
+  ),
+  transports: {
+    [baseSepolia.id]: http(),
+    [polygonAmoy.id]: http(),
+  },
+});
+
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-secondary-50 to-accent-50 flex items-center justify-center p-8 font-display">
-      <div className="text-center space-y-8 animate-fade-in">
-        <div className="space-y-4 animate-slide-up">
-          <Heading
-            level={1}
-            className="text-6xl font-bold bg-gradient-primary bg-clip-text text-transparent animate-bounce-gentle"
-          >
-            Hello World
-          </Heading>
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider locale="en-US">
+          <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center p-8">
+            <div className="text-center space-y-8">
+              <div className="space-y-4">
+                <h1 className="text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  Web3 DApp Demo
+                </h1>
 
-          <Text className="text-xl text-secondary-700 font-body max-w-md mx-auto leading-relaxed">
-            Welcome to React Aria Components with custom Tailwind design tokens
-          </Text>
-        </div>
+                <p className="text-xl text-gray-600 max-w-md mx-auto">
+                  Connect your wallet to Base Sepolia and Polygon Amoy networks
+                </p>
+              </div>
 
-        <div className="space-y-6">
-          <div className="flex flex-wrap justify-center gap-4">
-            <Button
-              className="px-8 py-4 bg-primary-600 text-white rounded-2xl hover:bg-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-300 focus:ring-offset-2 shadow-soft hover:shadow-medium transition-all duration-400 font-semibold text-lg"
-              onPress={() => alert("Hello from React Aria!")}
-            >
-              Primary Action
-            </Button>
+              <div className="space-y-6">
+                {/* RainbowKit Connect Button */}
+                <div className="flex justify-center">
+                  <ConnectButton />
+                </div>
 
-            <Button
-              className="px-8 py-4 bg-secondary-600 text-white rounded-2xl hover:bg-secondary-700 focus:outline-none focus:ring-4 focus:ring-secondary-300 focus:ring-offset-2 shadow-soft hover:shadow-medium transition-all duration-400 font-semibold text-lg"
-              onPress={() => alert("Secondary action!")}
-            >
-              Secondary
-            </Button>
+                {/* Swap Interface */}
+                <SwapInterface />
 
-            <Button
-              className="px-8 py-4 bg-accent-600 text-white rounded-2xl hover:bg-accent-700 focus:outline-none focus:ring-4 focus:ring-accent-300 focus:ring-offset-2 shadow-soft hover:shadow-glow transition-all duration-400 font-semibold text-lg"
-              onPress={() => alert("Accent action!")}
-            >
-              Accent
-            </Button>
+                {/* Network Info */}
+                <div className="p-6 bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg border border-white/20">
+                  <p className="text-gray-600 font-mono text-sm">
+                    Supported Networks: Base Sepolia (84532) | Polygon Amoy
+                    (8002)
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-
-          <div className="flex justify-center space-x-4">
-            <div className="w-4 h-4 bg-success-500 rounded-full animate-pulse-slow"></div>
-            <div
-              className="w-4 h-4 bg-warning-500 rounded-full animate-pulse-slow"
-              style={{ animationDelay: "0.5s" }}
-            ></div>
-            <div
-              className="w-4 h-4 bg-error-500 rounded-full animate-pulse-slow"
-              style={{ animationDelay: "1s" }}
-            ></div>
-          </div>
-        </div>
-
-        <div className="mt-12 p-6 bg-white/80 backdrop-blur-sm rounded-3xl shadow-large border border-white/20">
-          <Text className="text-secondary-600 font-mono text-sm">
-            Built with ❤️ using React Aria Components + Tailwind CSS
-          </Text>
-        </div>
-      </div>
-    </div>
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 }
 
